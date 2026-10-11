@@ -1,40 +1,70 @@
-<<<<<<< HEAD
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🛒 বাজার দর | BazarDor
 
-## Getting Started
+### Know Today's Market Prices at a Glance
 
-First, run the development server:
+**BazarDor (বাজার দর)** is a web application that helps users explore daily market prices of essential products in Bangladesh. It provides an easy way to check the latest prices of rice, lentils, oil, vegetables, fish, meat, eggs, milk, and spices in one place.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Key Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- **📊 Daily Market Prices:** View the latest prices of essential products in Bangladesh.
+- **📈 Price Comparison:** Compare today's prices with previous prices to understand market price changes.
+- **🔐 Authentication System:** Sign up, sign in, and access protected features using Better Auth.
+- **🔎 Category-Based Browsing:** Explore products by categories such as rice, lentils, oil, vegetables, fish, meat, eggs, milk, and spices.
+- **📱 Responsive Design:** Enjoy a user-friendly experience across desktop, tablet, and mobile devices.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🛠️ Technologies Used
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Frontend:** Next.js, React, TypeScript
+- **Styling:** Tailwind CSS, DaisyUI
+- **Authentication:** Better Auth
+- **Database:** MongoDB
+- **Notifications:** React Hot Toast
+- **Deployment:** Vercel
 
-## Learn More
+## 🚀 Getting Started
 
-To learn more about Next.js, take a look at the following resources:
+### Prerequisites
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Node.js
+- npm
+- MongoDB connection string
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Installation
 
-## Deploy on Vercel
+1. Clone the repository:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   git clone https://github.com/Ifatmetu/BazarDor.git
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-=======
-# bazardor
->>>>>>> a316363886e5165e63d0bc5c8d017eb275f828b0
+2. Navigate to the project directory:
+
+   ```bash
+   cd BazarDor
+   ```
+
+3. Install dependencies:
+
+   ```bash
+   npm install
+   ```
+
+4. Configure your environment variables in a `.env.local` file.
+
+5. Start the development server:
+
+   ```bash
+   npm run dev
+   ```
+
+
+
+## 👩‍💻 Developer
+
+**Ifat Jahan Metu**
+
+- GitHub:https://github.com/Ifatmetu
+
+---
+
+⭐ If you find this project useful, consider giving it a star!
