@@ -1,32 +1,124 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
 
 export default function AuthButtons() {
   const router = useRouter();
-  const { data: session } = authClient.useSession();
+  const { data: session, isPending } = authClient.useSession();
 
+  const [open, setOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const wrapRef = useRef<HTMLDivElement>(null);
+
+  // বাইরে click করলে বা Esc চাপলে dropdown বন্ধ
+  useEffect(() => {
+    if (!open) return;
+
+    const onClick = (e: MouseEvent) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setOpen(false);
+    };
+
+    document.addEventListener("mousedown", onClick);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("mousedown", onClick);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  async function onSignOut() {
+    setSigningOut(true);
+    await authClient.signOut();
+    setSigningOut(false);
+    setOpen(false);
+    router.push("/");
+    router.refresh();
+  }
+
+  if (isPending) {
+    return <div className="h-9 w-28 animate-pulse rounded-lg bg-gray-200" />;
+  }
+
+  // login আছে
   if (session) {
+    const fullName = session.user.name;
+
     return (
-      <div className="flex items-center gap-3">
-        <span className="text-sm font-medium text-gray-700">
-          {session.user.name}
-        </span>
+      <div ref={wrapRef} className="relative">
+        {/* নামে click করলে dropdown খুলবে */}
         <button
-          onClick={async () => {
-            await authClient.signOut();
-            router.refresh();
-          }}
-          className="rounded-lg border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-50"
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-haspopup="menu"
+          aria-expanded={open}
+          className="flex items-center gap-2 rounded-lg px-2 py-1.5 transition hover:bg-gray-100"
         >
-          সাইন আউট
+          <span className="flex size-8 shrink-0 items-center justify-center rounded-full bg-green-100 text-sm font-bold text-green-700">
+            {fullName.charAt(0).toUpperCase()}
+          </span>
+          <span className="max-w-[8rem] truncate text-sm font-medium text-gray-800">
+            {fullName.split(" ")[0]}
+          </span>
+          <span
+            className={`text-[10px] text-gray-500 transition-transform ${
+              open ? "rotate-180" : ""
+            }`}
+          >
+            ▼
+          </span>
         </button>
+
+        {open && (
+          <div
+            role="menu"
+            className="absolute right-0 top-full z-[100] mt-2 w-56 rounded-xl border border-gray-200 bg-white p-3 shadow-lg"
+          >
+            <div className="border-b border-gray-100 pb-2.5">
+              <p className="truncate text-sm font-bold text-gray-900">
+                {fullName}
+              </p>
+              <p className="truncate text-xs text-gray-500">
+                {session.user.email}
+              </p>
+            </div>
+
+            <div className="mt-2 space-y-0.5">
+              {/* আমার প্রোফাইল → /profile */}
+              <Link
+                href="/profile"
+                role="menuitem"
+                onClick={() => setOpen(false)}
+                className="flex items-center gap-2 rounded-lg px-2 py-2 text-sm text-gray-700 transition hover:bg-gray-50"
+              >
+                👤 আমার প্রোফাইল
+              </Link>
+
+              {/* সাইন আউট → logout */}
+              <button
+                type="button"
+                role="menuitem"
+                onClick={onSignOut}
+                disabled={signingOut}
+                className="flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-sm font-medium text-red-600 transition hover:bg-red-50 disabled:opacity-60"
+              >
+                ↩ {signingOut ? "অপেক্ষা করুন..." : "সাইন আউট"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
 
+  // login নেই
   return (
     <div className="flex items-center gap-2">
       <Link

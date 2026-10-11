@@ -4,6 +4,7 @@ import Link from "next/link";
 const Banner = () => {
   const date = new Date().toLocaleDateString("bn-BD", {
     dateStyle: "full",
+    timeZone: "Asia/Dhaka",
   });
 
   return (
@@ -24,12 +25,12 @@ const Banner = () => {
           </h1>
 
           <p className="mt-2 max-w-xl text-sm leading-relaxed text-gray-600 sm:text-base">
-            চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার দাম — বাজারভিত্তিক
-            বিস্তারিত, গড়, সর্বনিম্ন-সর্বাধিক এবং দামের পরিবর্তন এক জায়গায়।
+            চাল, ডাল, তেল, সবজি, মাছ, মাংস, ডিম ও মসলার আজকের দাম এবং
+            গতকালের তুলনায় দামের পরিবর্তন এক জায়গায়।
           </p>
 
           <Link
-            href="/category"
+            href="/#all-products"
             className="mt-4 inline-flex items-center gap-2 rounded-lg bg-green-600 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-green-700 active:scale-95"
           >
             সব পণ্য দেখুন
@@ -40,7 +41,7 @@ const Banner = () => {
         {/* Image */}
         <div className="relative z-10 h-40 w-full max-w-xs shrink-0 sm:h-48 sm:max-w-sm md:h-56 md:w-80 lg:h-60 lg:w-96">
           <Image
-            src="/bazar-Hero.png"
+            src="/bazar-hero.png"
             alt="আজকের বাজারের দাম"
             fill
             priority
