@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { getProducts } from "@/lib/products";
 
@@ -14,8 +15,12 @@ export default async function PriceFall() {
     .map((p) => {
       const today = Number(p.today);
       const yesterday = Number(p.yesterday);
+
       const change =
-        yesterday !== 0 ? ((today - yesterday) / yesterday) * 100 : 0;
+        yesterday !== 0
+          ? ((today - yesterday) / yesterday) * 100
+          : 0;
+
       return { ...p, today, yesterday, change };
     })
     .filter((p) => p.change < 0)
@@ -25,13 +30,17 @@ export default async function PriceFall() {
   if (fallen.length === 0) return null;
 
   return (
-    <section className="mx-auto w-full max-w-7xl px-4 py-6">
-      <h2 className="mb-4 flex items-center gap-2 text-xl font-bold text-gray-900">
-        <span className="text-sm text-green-600">▼</span>
+    <section className="mx-auto w-full max-w-7xl px-3 py-5 sm:px-5 sm:py-6 lg:px-6">
+      {/* Section heading */}
+      <h2 className="mb-4 flex items-center gap-2 text-lg font-bold text-gray-900 sm:mb-5 sm:text-xl">
+        <span className="text-sm text-green-600 sm:text-base">
+          ▼
+        </span>
         আজ দাম কমেছে
       </h2>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Responsive product grid */}
+      <div className="grid grid-cols-1 gap-3 min-[420px]:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {fallen.map((product) => {
           const validImage =
             typeof product.image === "string" &&
@@ -41,15 +50,17 @@ export default async function PriceFall() {
             <Link
               key={product.id}
               href={`/product/${product.slug}`}
-              className="block"
+              className="group block min-w-0 rounded-2xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
             >
-              <article className="rounded-2xl border border-gray-200 bg-white p-3.5 shadow-sm transition hover:shadow-md">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100">
+              <article className="h-full rounded-2xl border border-gray-200 bg-white p-3 shadow-sm transition duration-200 group-hover:border-green-200 group-hover:shadow-md sm:p-4">
+                {/* Product image and name */}
+                <div className="flex min-w-0 items-center gap-2.5 sm:gap-3">
+                  <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gray-100 sm:size-12">
                     {validImage ? (
                       <img
                         src={product.image}
                         alt={product.nameBn}
+                        loading="lazy"
                         className="size-full object-contain"
                       />
                     ) : (
@@ -59,27 +70,35 @@ export default async function PriceFall() {
                     )}
                   </div>
 
-                  <div>
-                    <h3 className="text-base font-bold text-gray-900">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="line-clamp-1 text-sm font-bold text-gray-900 transition-colors group-hover:text-green-700 sm:text-base">
                       {product.nameBn}
                     </h3>
-                    <p className="text-xs text-gray-500">
+
+                    <p className="mt-1 text-xs text-gray-500">
                       প্রতি {product.unit}
                     </p>
                   </div>
                 </div>
 
-                <div className="mt-3 flex items-end justify-between">
-                  <div>
-                    <p className="text-xs text-gray-500">আজকের দাম</p>
-                    <p className="text-lg font-extrabold text-gray-900">
+                {/* Price and percentage change */}
+                <div className="mt-3 flex flex-wrap items-end justify-between gap-2 border-t border-gray-100 pt-3 sm:mt-4 sm:pt-3">
+                  <div className="min-w-0">
+                    <p className="text-xs text-gray-500">
+                      আজকের দাম
+                    </p>
+
+                    <p className="mt-1 text-base font-extrabold text-gray-900 sm:text-lg">
                       {bn(product.today)}{" "}
-                      <span className="text-sm font-medium">টাকা</span>
+                      <span className="text-xs font-medium sm:text-sm">
+                        টাকা
+                      </span>
                     </p>
                   </div>
 
-                  <span className="rounded-full bg-green-50 px-2.5 py-1 text-xs font-bold text-green-600">
-                    ▼ {bn(Math.abs(product.change), 1)}%
+                  <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-green-50 px-2 py-1 text-xs font-bold text-green-700 sm:px-2.5">
+                    <span aria-hidden="true">▼</span>
+                    {bn(Math.abs(product.change), 1)}%
                   </span>
                 </div>
               </article>

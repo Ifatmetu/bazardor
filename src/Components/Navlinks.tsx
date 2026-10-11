@@ -1,4 +1,3 @@
-
 import Link from "next/link";
 
 type Category = {
@@ -20,14 +19,15 @@ async function Navlinks() {
   const categories: Category[] = await res.json();
 
   return (
-    <ul className="mt-3 flex flex-wrap gap-4">
+    <ul className="flex w-full flex-wrap items-center gap-x-3 gap-y-2 border-t border-gray-100 pt-3 text-xs sm:gap-x-5 sm:gap-y-3 sm:text-sm md:border-t-0 md:pt-0 lg:gap-x-6">
       {categories.map((category) => (
-        <li key={category.id}>
+        <li key={category.id} className="shrink-0">
           <Link
             href={`/category/${category.slug}`}
-            className="hover:text-green-600"
+            className="inline-flex items-center gap-1 rounded-md py-1 font-medium text-gray-700 transition-colors hover:text-green-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-600 focus-visible:ring-offset-2"
           >
-            {category.icon} {category.nameBn}
+            <span aria-hidden="true">{category.icon}</span>
+            <span>{category.nameBn}</span>
           </Link>
         </li>
       ))}
@@ -36,4 +36,3 @@ async function Navlinks() {
 }
 
 export default Navlinks;
-
