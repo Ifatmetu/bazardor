@@ -1,9 +1,11 @@
+
 "use client";
 
 import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 const input =
   "w-full rounded-lg border border-gray-200 bg-gray-50/60 px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 focus:border-green-600 focus:ring-2 focus:ring-green-100";
@@ -13,12 +15,16 @@ const label = "mb-1.5 block text-sm font-semibold text-gray-800";
 const SignUpContent = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const nextParam = searchParams.get("next") ?? "/";
   const next =
-    nextParam.startsWith("/") && !nextParam.startsWith("//") ? nextParam : "/";
+    nextParam.startsWith("/") && !nextParam.startsWith("//")
+      ? nextParam
+      : "/";
 
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [socialLoading, setSocialLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -30,36 +36,80 @@ const SignUpContent = () => {
     const password = String(form.get("password") ?? "");
     const confirm = String(form.get("confirm") ?? "");
 
-    if (password.length < 8) {
-      setError("পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে");
+    if (!name || !email || !password || !confirm) {
+      const message = "সবগুলো ঘর পূরণ করুন";
+      setError(message);
+      toast.error(message);
       return;
     }
+
+    if (password.length < 8) {
+      const message = "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে";
+      setError(message);
+      toast.error(message);
+      return;
+    }
+
     if (password !== confirm) {
-      setError("পাসওয়ার্ড দুটি মিলছে না");
+      const message = "পাসওয়ার্ড দুটি মিলছে না";
+      setError(message);
+      toast.error(message);
       return;
     }
 
     setLoading(true);
-    const { error } = await authClient.signUp.email({
-      name,
-      email,
-      password,
-      callbackURL: next,
-    });
 
-    if (error) {
-      setError(error.message || "কিছু একটা ভুল হয়েছে");
+    try {
+      const { error } = await authClient.signUp.email({
+        name,
+        email,
+        password,
+        callbackURL: next,
+      });
+
+      if (error) {
+        const message = error.message || "অ্যাকাউন্ট তৈরি করা যায়নি";
+        setError(message);
+        toast.error(message);
+        setLoading(false);
+        return;
+      }
+
+      toast.success("অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে!");
+
+      router.push(next);
+      router.refresh();
+    } catch {
+      const message = "কিছু একটা ভুল হয়েছে। আবার চেষ্টা করুন।";
+      setError(message);
+      toast.error(message);
       setLoading(false);
-      return;
     }
-
-    router.push(next);
-    router.refresh();
   }
 
   async function social(provider: "google" | "github") {
     setError("");
-    await authClient.signIn.social({ provider, callbackURL: next });
+    setSocialLoading(true);
+
+    try {
+      const { error } = await authClient.signIn.social({
+        provider,
+        callbackURL: next,
+      });
+
+      if (error) {
+        const message =
+          error.message || "সোশ্যাল লগইন ব্যর্থ হয়েছে";
+        setError(message);
+        toast.error(message);
+        setSocialLoading(false);
+      }
+    } catch {
+      const message = "লগইন করা যায়নি। আবার চেষ্টা করুন।";
+      setError(message);
+      toast.error(message);
+      setSocialLoading(false);
+    }
   }
 
   return (
@@ -75,6 +125,7 @@ const SignUpContent = () => {
 
       <form
         onSubmit={onSubmit}
+        noValidate
         className="space-y-4 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm"
       >
         <div>
@@ -135,14 +186,17 @@ const SignUpContent = () => {
         </div>
 
         {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
+          <p
+            role="alert"
+            className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600"
+          >
             {error}
           </p>
         )}
 
         <button
           type="submit"
-          disabled={loading}
+          disabled={loading || socialLoading}
           className="w-full rounded-lg bg-green-700 py-2.5 text-sm font-semibold text-white shadow-md transition hover:bg-green-800 active:scale-[0.99] disabled:opacity-60"
         >
           {loading ? "অপেক্ষা করুন..." : "অ্যাকাউন্ট তৈরি করুন"}
@@ -158,7 +212,8 @@ const SignUpContent = () => {
           <button
             type="button"
             onClick={() => social("google")}
-            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition hover:bg-gray-50 sm:text-sm"
+            disabled={loading || socialLoading}
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition hover:bg-gray-50 disabled:opacity-60 sm:text-sm"
           >
             <svg viewBox="0 0 24 24" className="size-4" aria-hidden>
               <path
@@ -184,9 +239,15 @@ const SignUpContent = () => {
           <button
             type="button"
             onClick={() => social("github")}
-            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition hover:bg-gray-50 sm:text-sm"
+            disabled={loading || socialLoading}
+            className="flex items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-800 transition hover:bg-gray-50 disabled:opacity-60 sm:text-sm"
           >
-            <svg viewBox="0 0 24 24" className="size-4" fill="currentColor" aria-hidden>
+            <svg
+              viewBox="0 0 24 24"
+              className="size-4"
+              fill="currentColor"
+              aria-hidden
+            >
               <path d="M12 .5a11.5 11.5 0 0 0-3.64 22.41c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.03 1.76 2.7 1.25 3.36.96.1-.75.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.7 0-1.26.45-2.29 1.18-3.1-.12-.29-.51-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.62 1.59.23 2.76.11 3.05.74.81 1.18 1.84 1.18 3.1 0 4.43-2.7 5.4-5.27 5.69.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5z" />
             </svg>
             GitHub দিয়ে চালিয়ে যান

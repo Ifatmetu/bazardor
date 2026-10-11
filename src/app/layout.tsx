@@ -4,7 +4,7 @@ import "./globals.css";
 import Navbar from "../Components/Navbar";
 import Footer from "../Components/Footer";
 import Marquee from "@/Components/Marquee";
-
+import ToasterProvider from "@/Components/ToasterProvider";
 const notoSerifBengali = Noto_Serif_Bengali({
   subsets: ["bengali", "latin"],
   display: "swap",
@@ -29,6 +29,7 @@ export default function RootLayout({
       <body
         className={`${notoSerifBengali.className} flex min-h-full flex-col bg-green-50`}
       >
+        <ToasterProvider />
         <Navbar />
         <Marquee />
         <div className="flex-1">{children}</div>
