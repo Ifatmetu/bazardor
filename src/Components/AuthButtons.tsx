@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 export default function AuthButtons() {
   const router = useRouter();
@@ -41,14 +42,27 @@ export default function AuthButtons() {
     };
   }, [open]);
 
+  // Sign out with toast
   async function onSignOut() {
+    if (signingOut) return;
+
     setSigningOut(true);
 
     try {
-      await authClient.signOut();
+      const { error } = await authClient.signOut();
+
+      if (error) {
+        toast.error(error.message || "সাইন আউট করা যায়নি");
+        return;
+      }
+
+      toast.success("সফলভাবে সাইন আউট হয়েছে!");
+
       setOpen(false);
       router.push("/");
       router.refresh();
+    } catch {
+      toast.error("সাইন আউট করতে সমস্যা হয়েছে");
     } finally {
       setSigningOut(false);
     }

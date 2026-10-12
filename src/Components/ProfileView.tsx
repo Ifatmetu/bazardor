@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
+import toast from "react-hot-toast";
 
 const input =
   "w-full min-w-0 rounded-lg border border-gray-200 bg-gray-50/60 px-3 py-2.5 text-sm text-gray-900 outline-none placeholder:text-gray-400 transition focus:border-green-600 focus:ring-2 focus:ring-green-100";
@@ -33,10 +34,10 @@ export default function ProfileView() {
     const trimmed = name.trim();
 
     if (!trimmed) {
-      setMessage({
-        type: "err",
-        text: "নাম খালি রাখা যাবে না",
-      });
+      const text = "নাম খালি রাখা যাবে না";
+
+      setMessage({ type: "err", text });
+      toast.error(text);
       return;
     }
 
@@ -48,50 +49,55 @@ export default function ProfileView() {
       });
 
       if (error) {
-        setMessage({
-          type: "err",
-          text: error.message || "আপডেট করা যায়নি",
-        });
+        const text = error.message || "আপডেট করা যায়নি";
+
+        setMessage({ type: "err", text });
+        toast.error(text);
         return;
       }
 
-      setMessage({
-        type: "ok",
-        text: "প্রোফাইল আপডেট হয়েছে",
-      });
+      const text = "প্রোফাইল আপডেট হয়েছে";
+
+      setMessage({ type: "ok", text });
+      toast.success(text);
 
       router.refresh();
     } catch {
-      setMessage({
-        type: "err",
-        text: "একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।",
-      });
+      const text = "একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।";
+
+      setMessage({ type: "err", text });
+      toast.error(text);
     } finally {
       setSaving(false);
     }
   }
 
   async function onSignOut() {
+    if (signingOut) return;
+
     setSigningOut(true);
+    setMessage(null);
 
     try {
       const { error } = await authClient.signOut();
 
       if (error) {
-        setMessage({
-          type: "err",
-          text: error.message || "সাইন আউট করা যায়নি",
-        });
+        const text = error.message || "সাইন আউট করা যায়নি";
+
+        setMessage({ type: "err", text });
+        toast.error(text);
         return;
       }
+
+      toast.success("সফলভাবে সাইন আউট হয়েছে!");
 
       router.push("/");
       router.refresh();
     } catch {
-      setMessage({
-        type: "err",
-        text: "সাইন আউট করতে সমস্যা হয়েছে",
-      });
+      const text = "সাইন আউট করতে সমস্যা হয়েছে";
+
+      setMessage({ type: "err", text });
+      toast.error(text);
     } finally {
       setSigningOut(false);
     }
@@ -140,7 +146,7 @@ export default function ProfileView() {
         <button
           type="button"
           onClick={onSignOut}
-          disabled={signingOut}
+          disabled={signingOut || saving}
           className="w-full shrink-0 rounded-lg border border-red-300 px-3 py-2 text-xs font-semibold text-red-600 transition hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50 min-[400px]:w-auto sm:px-4 sm:py-2.5 sm:text-sm"
         >
           {signingOut ? "সাইন আউট হচ্ছে..." : "↩ সাইন আউট"}
@@ -157,6 +163,7 @@ export default function ProfileView() {
         </h2>
 
         <div className="mt-4 space-y-4 sm:mt-5 sm:space-y-5">
+          {/* Name */}
           <div className="min-w-0">
             <label
               htmlFor="name"
@@ -182,6 +189,7 @@ export default function ProfileView() {
             />
           </div>
 
+          {/* Email */}
           <div className="min-w-0">
             <label
               htmlFor="email"
@@ -203,6 +211,7 @@ export default function ProfileView() {
             </p>
           </div>
 
+          {/* Success / Error message */}
           {message && (
             <p
               role="status"
@@ -217,6 +226,7 @@ export default function ProfileView() {
             </p>
           )}
 
+          {/* Update button */}
           <button
             type="submit"
             disabled={saving || !changed || signingOut}
