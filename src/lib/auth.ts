@@ -3,12 +3,25 @@ import { betterAuth } from "better-auth";
 import { MongoClient } from "mongodb";
 import { mongodbAdapter } from "@better-auth/mongo-adapter";
 
-dns.setServers(["8.8.8.8", "1.1.1.1"]);
+if (process.env.NODE_ENV !== "production") {
+  dns.setServers(["8.8.8.8", "1.1.1.1"]);
+}
 
-const client = new MongoClient(process.env.MONGO_DB_URL as string);
+const globalForMongo = globalThis as unknown as {
+  mongoClient?: MongoClient;
+};
+
+const client =
+  globalForMongo.mongoClient ??
+  new MongoClient(process.env.MONGO_DB_URL as string);
+
+globalForMongo.mongoClient = client;
+
 const db = client.db("bazardor");
 
 export const auth = betterAuth({
+  database: mongodbAdapter(db), // no `client`, so no transactions
+
   emailAndPassword: {
     enabled: true,
   },
@@ -24,15 +37,10 @@ export const auth = betterAuth({
     },
   },
 
-  // email/password diye ager account thakle, same email er Google/GitHub login oi account e link hobe
   account: {
     accountLinking: {
       enabled: true,
       trustedProviders: ["google", "github"],
     },
   },
-
-  database: mongodbAdapter(db, {
-    client,
-  }),
 });
